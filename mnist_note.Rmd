@@ -159,7 +159,7 @@ The Naive Bayes approach gives a training data classification accuracy of `r acc
 
 Again, the Naive Bayes assumption is that within each class, distinct pixel values are independent (i.e. $x_i \perp x_j \,| \, c$, $i, j \in \{1, \dots, 784 \}$, $i \neq j$). As such we have, $p(\mathbf{x} \, | \, c, \theta_c) = \prod_{d=1}^{784}\theta_{cd}^{x_d}(1-\theta_{cd})^{1-x_d}$. However, if we marginalize over $c$, and instead consider an assumption of unconditional independence (i.e. $x_i \perp x_j$, $i \neq j$) then things break down. Observing pixels in one region of the image would lead one to expect pixels in the same region of another image of the same class, suggesting a strong correlation between elements of the feature space.
 
-To demonstrate the effects of our assumptions we randomly sample from the marginal distribution $p(\mathbb{x} \, | \, \mathbb{\theta}, \pi)$,
+To demonstrate the effects of our assumptions we randomly sample from the marginal distribution $p(\mathbf{x} \, | \, \mathbb{\theta}, \pi)$,
 using our trained model.
 \vspace{12pt}
 ```{r}
@@ -186,12 +186,12 @@ It appears as if the Naive Bayes model may be too simplistic. The conditional in
 Here we consider how the Naive Bayes models handles missing data. Say we are given the top half of an image and wish to find the marginal distribution of a single pixel in the bottom half. Then let $B = \{392, \dots , 784 \}$
 $$
 \begin{aligned}
-  p(x_{i\in B} \, | \, \mathbb{x}_{top} \,, \mathbb{\theta}, \pi) & = \sum_cp(x_{i \in B} \, |c\,, \mathbb{x}_{top}\,,\theta, \pi)\frac{p(\mathbb{x}_{top} \, | \, c, \theta, \pi)p(c \, | \, \pi)}{\sum_{c'}p(\mathbb{x}_{top} \, | \, c, \theta, \pi)p(c \, | \, \pi)} \\ 
+  p(x_{i\in B} \, | \, \mathbf{x}_{top} \,, \mathbb{\theta}, \pi) & = \sum_cp(x_{i \in B} \, |c\,, \mathbf{x}_{top}\,,\theta, \pi)\frac{p(\mathbf{x}_{top} \, | \, c, \theta, \pi)p(c \, | \, \pi)}{\sum_{c'}p(\mathbf{x}_{top} \, | \, c, \theta, \pi)p(c \, | \, \pi)} \\ 
   \\
-  &= \sum_cp(x_{i \in B} \, |c\,\,,\theta, \pi)\frac{p(\mathbb{x}_{top} \, | \, c, \theta, \pi)p(c \, | \, \pi)}{\sum_{c'}p(\mathbb{x}_{top} \, | \, c, \theta, \pi)p(c \, | \, \pi)}
+  &= \sum_cp(x_{i \in B} \, |c\,\,,\theta, \pi)\frac{p(\mathbf{x}_{top} \, | \, c, \theta, \pi)p(c \, | \, \pi)}{\sum_{c'}p(\mathbf{x}_{top} \, | \, c, \theta, \pi)p(c \, | \, \pi)}
 \end{aligned}
 $$
-futhermore, if we continue to assume that $p(c \, | \, \pi)$ is the same for all $c$, then the expression simplifies further to $S^{-1}\sum_cp(x_{i \in B} \, |c\,\,,\theta, \pi)p(\mathbb{x}_{top} \, | \, c, \theta, \pi)$ where $S$ is the sum in the denomitor of the expression above.
+futhermore, if we continue to assume that $p(c \, | \, \pi)$ is the same for all $c$, then the expression simplifies further to $S^{-1}\sum_cp(x_{i \in B} \, |c\,\,,\theta, \pi)p(\mathbf{x}_{top} \, | \, c, \theta, \pi)$ where $S$ is the sum in the denomitor of the expression above.
 From the results derived above, we will plot the top half the image concatenated with the marginal distribution over each pixel in the bottom half.
 
 ```{r}
