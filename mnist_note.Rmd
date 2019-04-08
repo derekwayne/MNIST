@@ -5,11 +5,6 @@ date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
   pdf_document: default
   html_notebook: default
-  html_document:
-    df_print: paged
-tags:
-- nothing
-- nothingness
 abstract: |
   In this note, we explore the differences in capabilities and performance of generative and discriminative models fit to the
   MNIST dataset of handwritten digits. There are some readily apparent advantages to using a probabilistic classifier such
@@ -43,11 +38,11 @@ $$
 $$
 which is the solution to the likelihood equation:
 $$
-\sum_{n=1}^N\mathbb{1}\{y^{(n)}=c \}\bigg(x_d^{(n)}(1-\theta_{cd}) - (1-x_d^{(n)})\theta_{cd} \bigg) = 0
+\sum_{n=1}^NI\{y^{(n)}=c \}\bigg(x_d^{(n)}(1-\theta_{cd}) - (1-x_d^{(n)})\theta_{cd} \bigg) = 0
 $$
 and so,
 $$
-\widehat{\theta}_{cd, MLE} = \frac{\sum_{n=1}^N\mathbb1\{y^{(n)}=c\}x_d^{(n)}}{\sum_{n=1}^N\mathbb1\{y^{(n)}=c\}}
+\widehat{\theta}_{cd, MLE} = \frac{\sum_{n=1}^NI\{y^{(n)}=c\}x_d^{(n)}}{\sum_{n=1}^NI\{y^{(n)}=c\}}
 $$
 which is to be interpreted as the ratio of the number of examples with the dth pixel activated in class $c$ to the total number of examples of class $c$, which is a natural result for the MLE. However, this estimator can be problematic if there are no examples of a particular class within the
 dataset (thus we have 0 in the denominator of our estimator), or the pixel value is 1 in every example in dataset (then the estimator is equal to 1).
@@ -59,16 +54,16 @@ $$
   \\
   &= \, arg \,\, \max_{\theta_{cd}} \, \prod_{n=1}^N \pi_c\prod_{d=1}^{784}\theta_{cd}^{x_d^{(n)}}(1-\theta_{cd})^{1-x_d^{(n)}}  \times Beta(\alpha, \beta) \\
   \\
-  &= \, arg \,\, \max_{\theta_{cd}} \,  \bigg(\theta_{cd}^{\sum_{n=1}^N\mathbb1\{y^{(n)}=c\}x_d^{(n)} + (\alpha - 1)}(1-\theta_{cd})^{\sum_{n=1}^N\mathbb1\{y^{(n)}=c\}(1-x_d^{(n)}) + (\beta - 1)}\bigg)
+  &= \, arg \,\, \max_{\theta_{cd}} \,  \bigg(\theta_{cd}^{\sum_{n=1}^NI\{y^{(n)}=c\}x_d^{(n)} + (\alpha - 1)}(1-\theta_{cd})^{\sum_{n=1}^NI\{y^{(n)}=c\}(1-x_d^{(n)}) + (\beta - 1)}\bigg)
 \end{aligned}
 $$
-where the expression inside parenthesis on the last line may be recognized as $Beta(\sum_{n=1}^N\mathbb1\{y^{(n)}=c\}x_d^{(n)} + \alpha \, , \, \sum_{n=1}^N\mathbb1\{y^{(n)}=c\}(1-x_d^{(n)}) + \beta)$ which for $\alpha, \beta > 1$ (hence unimodal),  has mode:
+where the expression inside parenthesis on the last line may be recognized as $Beta(\sum_{n=1}^NI\{y^{(n)}=c\}x_d^{(n)} + \alpha \, , \, \sum_{n=1}^NI\{y^{(n)}=c\}(1-x_d^{(n)}) + \beta)$ which for $\alpha, \beta > 1$ (hence unimodal),  has mode:
 $$
-\frac{\sum_{n=1}^N\mathbb1\{y^{(n)}=c\}x_d^{(n)} + \alpha - 1}{\sum_{n=1}^N\mathbb1\{y^{(n)}=c\} + \alpha + \beta - 2}
+\frac{\sum_{n=1}^NI\{y^{(n)}=c\}x_d^{(n)} + \alpha - 1}{\sum_{n=1}^NI\{y^{(n)}=c\} + \alpha + \beta - 2}
 $$
 In particular if we let $\alpha = \beta = 2$ (symmetric about $1/2$) we have,
 $$
-\widehat{\theta}_{cd, MAP} = \frac{\sum_{n=1}^N\mathbb1\{y^{(n)}=c\}x_d^{(n)} + 1}{\sum_{n=1}^N\mathbb1\{y^{(n)}=c\} + 2}
+\widehat{\theta}_{cd, MAP} = \frac{\sum_{n=1}^NI\{y^{(n)}=c\}x_d^{(n)} + 1}{\sum_{n=1}^NI\{y^{(n)}=c\} + 2}
 $$
 This is known as "Laplacian smoothing". Then the $784 \times 10$ matrix $\widehat{\mathbf{\theta}}_{MAP}$ will have entry $c,d$ given as derived above.
 
@@ -238,9 +233,9 @@ $$
 \begin{aligned}
 \frac{\partial log \mathcal{L}(\mathbf{w})}{\partial w_c^{(d)}} &= \frac{\partial}{\partial w_c^{(d)}}\sum_{n=1}^Nw_{c'}^Tx_n - \frac{\partial}{\partial w_c^{(d)}}\sum_{n=1}^Nlog \sum_{c'=0}^9 exp(w_{c'}^Tx_n) \\
 \\
-&= \sum_{n=1}^N\mathbb{1}\{y_n = c \}x_n^{(d)} - \sum_{n=1}^N\frac{\sum_{c'=0}^9 exp(w_{c'}^Tx_n)\mathbb{1}\{y_n=c\}x_n^{(d)}}{\sum_{c'=0}^9 exp(w_{y_n}^Tx_n)} \\
+&= \sum_{n=1}^NI\{y_n = c \}x_n^{(d)} - \sum_{n=1}^N\frac{\sum_{c'=0}^9 exp(w_{c'}^Tx_n)I\{y_n=c\}x_n^{(d)}}{\sum_{c'=0}^9 exp(w_{y_n}^Tx_n)} \\
 \\
-&= \sum_{n=1}^N \bigg(\mathbb{1}\{y_n=c\}x_n^{(d)}-S_cx_n^{(d)} \bigg)
+&= \sum_{n=1}^N \bigg(I\{y_n=c\}x_n^{(d)}-S_cx_n^{(d)} \bigg)
 \end{aligned}
 $$
 for $c = 0, 2, \dots, 9$ and $d = 1, \dots , 784$. However, there is a more intuitive interpretation. If we consider the vector of probabilities (of being in each of the 10 classes) for image $i$, $\widehat{\mathbf{y}}_i =[\hat{y}_i^{(1)}, \dots, \hat{y}_i^{(10)}]$ given by the output of the softmax activation function, then we may arrive at the useful representation of a single observation:
