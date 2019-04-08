@@ -301,4 +301,4 @@ with tf.Session() as sess:
 ```{r pressure, echo=FALSE, fig.align='center' ,fig.cap="Learned Weights", out.width="50%"}
 knitr::include_graphics("learned_weights.png")
 ```
-We have achieved an accuracy of about 0.89 on the training data and about 0.90 on the test data. The average log-likelihood was found to be about -0.565. Compared to Naive Bayes this is an improvement. The gradient descent method could be further optimized by using mini-batch learning. The comparison to Naive Bayes loosely demonstrates the trade-offs between model complexity and accuracy. Plots of learned paramters are contained in figure 4.
+We have achieved an accuracy of about 0.89 on the training data and about 0.90 on the test data. The average log-likelihood was found to be about -0.565. Compared to Naive Bayes this is an improvement. The gradient descent method could be further optimized by using mini-batch learning. The comparison to Naive Bayes loosely demonstrates the trade-offs between model complexity and accuracy.
